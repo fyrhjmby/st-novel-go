@@ -1,0 +1,19 @@
+database:
+  host: "127.0.0.1"
+  port: 3306
+  username: "root"
+  password: "mypassword182"
+  database: "stnovel"
+  charset: "utf8mb4"
+
+server:
+  port: 8080
+  mode: "debug" # debug, release
+
+
+
+redis:
+  host: "127.0.0.1"
+  port: 6379
+  password: ""
+  db: 0
