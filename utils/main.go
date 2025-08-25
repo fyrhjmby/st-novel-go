@@ -10,10 +10,10 @@ import (
 )
 
 func main() {
-	rootDirs := []string{"../st-novel-go"}
+	rootDirs := []string{"../st-novel-go/src/novel"}
 	outputFileName := "settings.txt"
 	// 定义要屏蔽（不进行递归读取）的目录名称列表。
-	excludedDirs := []string{""}
+	excludedDirs := []string{"utils", "mock"}
 
 	// 定义要屏蔽（不读取）的特定文件名列表。
 	excludedFiles := []string{".json", "package.json", "pnpm-lock.yaml", "components.d.ts", "auto-imports.d.ts"}
@@ -64,7 +64,7 @@ func main() {
 			// 			if strings.HasSuffix(d.Name(), ".ts")||strings.HasSuffix(d.Name(), ".vue")||strings.HasSuffix(d.Name(), ".css")  {
 			// 				targetFiles = append(targetFiles, path)
 			// 			}
-			if strings.HasSuffix(d.Name(), ".go") || strings.HasSuffix(d.Name(), ".mod") || strings.HasSuffix(d.Name(), ".yaml") {
+			if strings.HasSuffix(d.Name(), ".go") || strings.HasSuffix(d.Name(), ".mod") || strings.HasSuffix(d.Name(), ".yaml") || strings.HasSuffix(d.Name(), ".md") {
 				targetFiles = append(targetFiles, path)
 			}
 			return nil
