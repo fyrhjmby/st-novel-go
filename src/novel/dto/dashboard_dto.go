@@ -1,4 +1,3 @@
-// 文件路径: st-novel-go/src/novel/dto/dashboard_dto.go
 package dto
 
 type NovelTagDTO struct {

@@ -1,4 +1,3 @@
-// ..\st-novel-go\src\novel\dao\directory_dao.go
 package dao
 
 import (
@@ -38,10 +37,19 @@ func GetVolumesByNovelID(novelID string) ([]model.Volume, error) {
 	return volumes, err
 }
 
-func GetChaptersByNovelID(novelID string) ([]model.Chapter, error) {
+func GetChaptersByVolumeID(volumeID string) ([]model.Chapter, error) {
 	var chapters []model.Chapter
-	err := database.DB.Where("novel_id = ?", novelID).Order("`order` ASC").Find(&chapters).Error
+	err := database.DB.Where("volume_id = ?", volumeID).Order("`order` ASC").Find(&chapters).Error
 	return chapters, err
+}
+
+func GetLastUpdatedChapterForNovel(novelID string) (*model.Chapter, error) {
+	var chapter model.Chapter
+	err := database.DB.Where("novel_id = ?", novelID).Order("updated_at DESC").First(&chapter).Error
+	if err != nil {
+		return nil, err
+	}
+	return &chapter, nil
 }
 
 func UpdateVolume(volume *model.Volume) error {
@@ -54,13 +62,11 @@ func UpdateChapter(chapter *model.Chapter) error {
 
 func DeleteVolume(volumeID string) error {
 	return database.DB.Transaction(func(tx *gorm.DB) error {
-		// Find all chapters of the volume
 		var chapters []model.Chapter
 		if err := tx.Where("volume_id = ?", volumeID).Find(&chapters).Error; err != nil {
 			return err
 		}
 
-		// Delete related data for each chapter
 		for _, chapter := range chapters {
 			if err := DeleteHistoryForDocument(tx, chapter.ID.String()); err != nil {
 				return err
@@ -70,12 +76,10 @@ func DeleteVolume(volumeID string) error {
 			}
 		}
 
-		// Delete all chapters of the volume
 		if err := tx.Where("volume_id = ?", volumeID).Delete(&model.Chapter{}).Error; err != nil {
 			return err
 		}
 
-		// Delete related data for the volume itself
 		if err := DeleteHistoryForDocument(tx, volumeID); err != nil {
 			return err
 		}
@@ -83,7 +87,6 @@ func DeleteVolume(volumeID string) error {
 			return err
 		}
 
-		// Finally, delete the volume
 		result := tx.Where("id = ?", volumeID).Delete(&model.Volume{})
 		if result.Error != nil {
 			return result.Error
@@ -98,16 +101,13 @@ func DeleteVolume(volumeID string) error {
 
 func DeleteChapter(chapterID string) error {
 	return database.DB.Transaction(func(tx *gorm.DB) error {
-		// Delete related history
 		if err := DeleteHistoryForDocument(tx, chapterID); err != nil {
 			return err
 		}
-		// Delete related derived content
 		if err := DeleteDerivedContentForSource(tx, chapterID); err != nil {
 			return err
 		}
 
-		// Delete the chapter itself
 		result := tx.Delete(&model.Chapter{}, "id = ?", chapterID)
 		if result.Error != nil {
 			return result.Error

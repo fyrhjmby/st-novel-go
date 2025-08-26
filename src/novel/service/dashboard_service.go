@@ -79,8 +79,8 @@ func MoveToTrash(novelID string, userID uint) error {
 	return dao.SoftDeleteNovelByID(novelID, userID)
 }
 
-func GetAvailableCategories() []string {
-	return []string{
+func GetAvailableCategories() []dto.NovelCategoryDTO {
+	categories := []string{
 		"科幻",
 		"奇幻",
 		"悬疑",
@@ -89,6 +89,11 @@ func GetAvailableCategories() []string {
 		"言情",
 		"历史",
 	}
+	var categoryDTOs []dto.NovelCategoryDTO
+	for _, category := range categories {
+		categoryDTOs = append(categoryDTOs, dto.NovelCategoryDTO{Name: category})
+	}
+	return categoryDTOs
 }
 
 func mapNovelToDashboardDTO(novel model.Novel, chapterCount int) dto.NovelDashboardItemDTO {

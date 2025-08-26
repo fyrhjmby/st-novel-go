@@ -1,4 +1,3 @@
-// 文件: ..\st-novel-go\src\novel\service\project_service.go
 package service
 
 import (
@@ -44,7 +43,7 @@ func CreateFullNovelProject(payload dto.CreateFullNovelProjectPayload, userID ui
 		return nil, err
 	}
 
-	if err := dao.CreateNovelProjectWithData(novel); err != nil {
+	if err := dao.UpsertNovelProjectWithData(novel); err != nil {
 		return nil, err
 	}
 
@@ -57,7 +56,7 @@ func ImportNovelProject(payload dto.CreateFullNovelProjectPayload, userID uint) 
 		return nil, err
 	}
 
-	if err := dao.CreateNovelProjectWithData(novel); err != nil {
+	if err := dao.UpsertNovelProjectWithData(novel); err != nil {
 		return nil, err
 	}
 

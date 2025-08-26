@@ -1,4 +1,3 @@
-// 文件路径: st-novel-go/src/novel/service/trash_service.go
 package service
 
 import (
@@ -52,13 +51,13 @@ func GetTrashedNovels(userID uint) ([]dto.DeletedItemDTO, error) {
 	return dtoList, nil
 }
 
-func RestoreNovel(novelID string, userID uint) (dto.NovelDashboardItemDTO, error) {
-	err := dao.RestoreNovelByID(novelID, userID)
+func RestoreNovel(itemID string, userID uint) (dto.NovelDashboardItemDTO, error) {
+	err := dao.RestoreNovelByID(itemID, userID)
 	if err != nil {
 		return dto.NovelDashboardItemDTO{}, err
 	}
 
-	restoredNovel, err := dao.FindNovelByID(novelID, userID)
+	restoredNovel, err := dao.FindNovelByID(itemID, userID)
 	if err != nil {
 		return dto.NovelDashboardItemDTO{}, err
 	}
@@ -73,6 +72,6 @@ func RestoreNovel(novelID string, userID uint) (dto.NovelDashboardItemDTO, error
 	return mapNovelToDashboardDTO(restoredNovel, int(chapterCount)), nil
 }
 
-func PermanentlyDeleteNovel(novelID string, userID uint) error {
-	return dao.PermanentlyDeleteNovelByID(novelID, userID)
+func PermanentlyDeleteNovel(itemID string, userID uint) error {
+	return dao.PermanentlyDeleteNovelByID(itemID, userID)
 }

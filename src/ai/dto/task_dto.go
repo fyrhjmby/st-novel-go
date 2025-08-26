@@ -2,12 +2,12 @@
 package dto
 
 type AIProviderConfigDTO struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Model       string `json:"model"`
-	Temperature int    `json:"temperature"`
-	MaxTokens   int    `json:"maxTokens"`
-	Description string `json:"description"`
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Model       string  `json:"model"`
+	Temperature float32 `json:"temperature"`
+	MaxTokens   int     `json:"maxTokens"`
+	Description string  `json:"description"`
 }
 
 type StreamAITaskPayload struct {

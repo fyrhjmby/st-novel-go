@@ -1,10 +1,8 @@
-// 文件: ..\st-novel-go\src\novel\dao\project_dao.go
-
-// st-novel-go/src/novel/dao/project_dao.go
 package dao
 
 import (
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"st-novel-go/src/database"
 	"st-novel-go/src/novel/model"
 )
@@ -59,23 +57,27 @@ func GetAllNovelProjectsForUser(userID uint) ([]model.Novel, error) {
 	return novels, nil
 }
 
-func CreateNovelProjectWithData(novel *model.Novel) error {
+func UpsertNovelProjectWithData(novel *model.Novel) error {
 	return database.DB.Transaction(func(tx *gorm.DB) error {
-		// 1. Create the Novel record itself (which includes JSON fields)
-		if err := tx.Create(novel).Error; err != nil {
+		if err := tx.Clauses(clause.OnConflict{
+			UpdateAll: true,
+		}).Create(novel).Error; err != nil {
 			return err
 		}
 
-		// 2. Create Volume and Chapter records, linking them correctly
 		for i := range novel.Volumes {
 			novel.Volumes[i].NovelID = novel.ID
-			if err := tx.Create(&novel.Volumes[i]).Error; err != nil {
+			if err := tx.Clauses(clause.OnConflict{
+				UpdateAll: true,
+			}).Create(&novel.Volumes[i]).Error; err != nil {
 				return err
 			}
 			for j := range novel.Volumes[i].Chapters {
 				novel.Volumes[i].Chapters[j].NovelID = novel.ID
 				novel.Volumes[i].Chapters[j].VolumeID = novel.Volumes[i].ID
-				if err := tx.Create(&novel.Volumes[i].Chapters[j]).Error; err != nil {
+				if err := tx.Clauses(clause.OnConflict{
+					UpdateAll: true,
+				}).Create(&novel.Volumes[i].Chapters[j]).Error; err != nil {
 					return err
 				}
 			}

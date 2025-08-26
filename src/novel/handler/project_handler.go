@@ -1,6 +1,3 @@
-// 文件: ..\st-novel-go\src\novel\handler\project_handler.go
-
-// st-novel-go/src/novel/handler/project_handler.go
 package handler
 
 import (
@@ -12,7 +9,7 @@ import (
 )
 
 func GetNovelProjectHandler(c *gin.Context) {
-	novelID := c.Param("id")
+	novelID := c.Param("novelId")
 	claims, _ := c.Get(middleware.UserClaimsKey)
 	userClaims := claims.(*utils.Claims)
 
@@ -73,7 +70,7 @@ func ImportNovelProjectHandler(c *gin.Context) {
 }
 
 func DeleteNovelProjectHandler(c *gin.Context) {
-	novelID := c.Param("id")
+	novelID := c.Param("novelId")
 	claims, _ := c.Get(middleware.UserClaimsKey)
 	userClaims := claims.(*utils.Claims)
 

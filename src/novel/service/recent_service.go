@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"github.com/google/uuid"
-	"sort"
 	"st-novel-go/src/database"
 	"st-novel-go/src/novel/dao"
 	"st-novel-go/src/novel/dto"
@@ -86,42 +85,9 @@ func LogRecentAccess(payload dto.LogRecentAccessPayload, userID uint) (*dto.Rece
 		return nil, errors.New("novel not found or permission denied")
 	}
 
-	chapters, err := dao.GetChaptersByNovelID(payload.NovelID)
+	latestChapter, err := dao.GetLastUpdatedChapterForNovel(payload.NovelID)
 	if err != nil {
-		return nil, errors.New("failed to retrieve chapters for novel")
-	}
-
-	var latestChapter model.Chapter
-	if len(chapters) > 0 {
-		sort.Slice(chapters, func(i, j int) bool {
-			return chapters[i].UpdatedAt.After(chapters[j].UpdatedAt)
-		})
-		latestChapter = chapters[0]
-	} else {
-		volumes, _ := dao.GetVolumesByNovelID(payload.NovelID)
-		if len(volumes) > 0 {
-			activity := &model.RecentActivity{
-				UserID:         userID,
-				NovelID:        novel.ID,
-				EditedItemType: "outline",
-				EditedItemID:   volumes[0].ID.String(),
-				EditedItemName: volumes[0].Title,
-				BaseModel:      model.BaseModel{UpdatedAt: time.Now()},
-			}
-			if err := dao.LogOrUpdateRecentActivity(activity); err != nil {
-				return nil, err
-			}
-			return &dto.RecentActivityItemDTO{
-				ID:             activity.ID.String(),
-				NovelID:        novel.ID.String(),
-				NovelTitle:     novel.Title,
-				NovelCover:     novel.Cover,
-				EditedItemType: "outline",
-				EditedItemName: volumes[0].Title,
-				EditedAt:       activity.UpdatedAt.Format(time.RFC3339),
-			}, nil
-		}
-		return nil, errors.New("cannot log access for an empty novel")
+		return nil, errors.New("cannot log access for a novel without chapters")
 	}
 
 	activity := &model.RecentActivity{

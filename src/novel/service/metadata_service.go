@@ -1,4 +1,3 @@
-// 文件路径: st-novel-go/src/novel/service/metadata_service.go
 package service
 
 import (

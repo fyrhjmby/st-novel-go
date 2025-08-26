@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"github.com/google/uuid"
 	"st-novel-go/src/novel/dao"
 	"st-novel-go/src/novel/dto"
 	"st-novel-go/src/novel/model"
@@ -15,11 +14,15 @@ func GetVolumes(novelID string, userID uint) ([]model.Volume, error) {
 	return dao.GetVolumesByNovelID(novelID)
 }
 
-func GetChaptersForNovel(novelID string, userID uint) ([]model.Chapter, error) {
-	if _, err := dao.FindNovelByID(novelID, userID); err != nil {
-		return nil, errors.New("permission denied or novel not found")
+func GetChaptersForVolume(volumeID string, userID uint) ([]model.Chapter, error) {
+	volume, err := dao.FindVolumeByID(volumeID)
+	if err != nil {
+		return nil, errors.New("volume not found")
 	}
-	return dao.GetChaptersByNovelID(novelID)
+	if _, err := dao.FindNovelByID(volume.NovelID.String(), userID); err != nil {
+		return nil, errors.New("permission denied")
+	}
+	return dao.GetChaptersByVolumeID(volumeID)
 }
 
 func GetChapter(chapterID string, userID uint) (*model.Chapter, error) {
@@ -167,12 +170,4 @@ func UpdateChapterOrder(volumeID string, userID uint, orderedIDs []string) error
 		return errors.New("permission denied")
 	}
 	return dao.UpdateChapterOrder(volumeID, orderedIDs)
-}
-
-func MapUUIDs(uuids []uuid.UUID) []string {
-	s := make([]string, len(uuids))
-	for i, u := range uuids {
-		s[i] = u.String()
-	}
-	return s
 }

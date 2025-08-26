@@ -27,7 +27,7 @@ func GetAIProvidersForEditor(userID uint) ([]dto.AIProviderConfigDTO, error) {
 				Model:       key.DefaultModel,
 				Description: fmt.Sprintf("Provider: %s, Model: %s", key.Provider, key.DefaultModel),
 				// Default values, can be overridden by frontend
-				Temperature: 70,
+				Temperature: 0.7,
 				MaxTokens:   2048,
 			})
 		}
@@ -63,7 +63,7 @@ func StreamAITask(ctx context.Context, payload dto.StreamAITaskPayload, userID u
 
 	chatConfig := model.ChatConfig{
 		Model:       payload.Config.Model,
-		Temperature: float32(payload.Config.Temperature) / 100.0,
+		Temperature: payload.Config.Temperature,
 		MaxTokens:   payload.Config.MaxTokens,
 		Stream:      true,
 	}

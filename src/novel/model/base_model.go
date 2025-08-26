@@ -1,4 +1,3 @@
-// 文件路径: st-novel-go/src/novel/model/base_model.go
 package model
 
 import (

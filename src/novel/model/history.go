@@ -1,4 +1,3 @@
-// st-novel-go/src/novel/model/history.go
 package model
 
 type HistoryVersion struct {

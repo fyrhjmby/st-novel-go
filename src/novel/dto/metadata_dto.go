@@ -1,7 +1,5 @@
-// Package dto defines data transfer objects used for communication between layers.
 package dto
 
-// UpdateMetadataPayload defines the structure for updating a novel's metadata.
 type UpdateMetadataPayload struct {
 	Title             *string        `json:"title"`
 	Description       *string        `json:"description"`
