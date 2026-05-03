@@ -29,4 +29,28 @@ func RegisterSettingsRoutes(router *gin.RouterGroup) {
 		apiKeysGroup.PUT("/:id", handler.UpdateAPIKeyHandler)
 		apiKeysGroup.DELETE("/:id", handler.DeleteAPIKeyHandler)
 	}
+
+	// System settings routes (stubs)
+	systemGroup := router.Group("/system")
+	systemGroup.Use(middleware.AuthMiddleware())
+	{
+		systemGroup.GET("/themes", handler.GetSystemThemesHandler)
+		systemGroup.GET("/settings", handler.GetSystemSettingsHandler)
+		systemGroup.PATCH("/settings", handler.UpdateSystemSettingsHandler)
+	}
+
+	// Usage logs routes (stub)
+	usageGroup := router.Group("/usage-logs")
+	usageGroup.Use(middleware.AuthMiddleware())
+	{
+		usageGroup.GET("", handler.GetUsageLogsHandler)
+	}
+
+	// Data privacy routes (stubs)
+	privacyGroup := router.Group("/privacy")
+	privacyGroup.Use(middleware.AuthMiddleware())
+	{
+		privacyGroup.GET("/settings", handler.GetPrivacySettingsHandler)
+		privacyGroup.PUT("/collection-settings", handler.UpdatePrivacySettingsHandler)
+	}
 }

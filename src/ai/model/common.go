@@ -20,7 +20,9 @@ type ChatResponse struct {
 }
 
 // StreamResponse is the structure for a chunk in a streaming response.
+// Event 字段用于前端 SSE 解析：前端根据 "chunk"/"done"/"error" 区分事件类型。
 type StreamResponse struct {
+	Event   string `json:"event,omitempty"`
 	Content string `json:"content,omitempty"`
 	Done    bool   `json:"done"`
 	Error   string `json:"error,omitempty"`

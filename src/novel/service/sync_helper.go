@@ -28,3 +28,30 @@ var tagRegex = regexp.MustCompile(`<[^>]*>`)
 func stripHtmlTags(input string) string {
 	return strings.TrimSpace(tagRegex.ReplaceAllString(input, ""))
 }
+
+// countWordsFromHTML 去除 HTML 标签后统计纯文本字数
+func countWordsFromHTML(html string) int {
+	text := tagRegex.ReplaceAllString(html, "")
+	// 按中文字符和非中文词统计
+	words := 0
+	for _, r := range text {
+		if r > 127 { // 中文字符每个计为1字
+			words++
+		}
+	}
+	// 英文/数字按空格分词统计
+	englishWords := strings.Fields(tagRegex.ReplaceAllString(html, " "))
+	for _, w := range englishWords {
+		isAscii := true
+		for _, r := range w {
+			if r > 127 {
+				isAscii = false
+				break
+			}
+		}
+		if isAscii && len(w) > 0 {
+			words++
+		}
+	}
+	return words
+}

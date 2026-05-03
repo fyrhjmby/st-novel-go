@@ -14,6 +14,8 @@ func RegisterAIRoutes(router *gin.RouterGroup) {
 		{
 			chatGroup.GET("/conversations", handler.GetConversationsHandler)
 			chatGroup.POST("/conversations", handler.CreateConversationHandler)
+			chatGroup.PUT("/conversations/:id", handler.UpdateConversationHandler)
+			chatGroup.DELETE("/conversations/:id", handler.DeleteConversationHandler)
 		}
 
 		aiGroup.POST("/stream-chat", handler.StreamChatHandler)

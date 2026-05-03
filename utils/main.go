@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	rootDirs := []string{"../st-novel-go/src"}
+	rootDirs := []string{"../st-novel-go/src/novel"}
 	outputFileName := "settings.txt"
 	// 定义要屏蔽（不进行递归读取）的目录名称列表。
 	excludedDirs := []string{"utils", "mock"}

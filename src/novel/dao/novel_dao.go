@@ -72,6 +72,17 @@ func UpdateNovel(novel *model.Novel) error {
 }
 
 func UpdateNovelJSONField(novelID string, userID uint, fieldName string, data interface{}) error {
+	// 字段白名单：防止通过 fieldName 注入更新非预期的列
+	allowedFields := map[string]bool{
+		"settings_data":        true,
+		"plot_custom_data":     true,
+		"analysis_custom_data": true,
+		"others_custom_data":   true,
+	}
+	if !allowedFields[fieldName] {
+		return fmt.Errorf("update of field '%s' is not allowed", fieldName)
+	}
+
 	// Verify user ownership first
 	_, err := FindNovelByID(novelID, userID)
 	if err != nil {
@@ -116,9 +127,9 @@ func RestoreNovelByID(novelID string, userID uint) error {
 
 func PermanentlyDeleteNovelByID(novelID string, userID uint) error {
 	return database.DB.Transaction(func(tx *gorm.DB) error {
-		// 1. Find the novel and its children's IDs
+		// 1. Find the novel and preload all children for cascade deletion
 		var novel model.Novel
-		if err := tx.Unscoped().Preload("Volumes.Chapters").Where("id = ? AND user_id = ?", novelID, userID).First(&novel).Error; err != nil {
+		if err := tx.Unscoped().Preload("Volumes.Chapters").Preload("DerivedContents").Preload("Notes").Where("id = ? AND user_id = ?", novelID, userID).First(&novel).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return errors.New("trashed novel not found or permission denied")
 			}

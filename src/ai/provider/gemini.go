@@ -141,14 +141,15 @@ func (a *GeminiAdapter) processStream(resp *http.Response, outChan chan<- model.
 
 		if len(streamResp.Candidates) > 0 && len(streamResp.Candidates[0].Content.Parts) > 0 {
 			outChan <- model.StreamResponse{
+				Event:   "chunk",
 				Content: streamResp.Candidates[0].Content.Parts[0].Text,
 				Done:    false,
 			}
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		outChan <- model.StreamResponse{Error: "stream reading error: " + err.Error(), Done: true}
+		outChan <- model.StreamResponse{Event: "error", Error: "stream reading error: " + err.Error(), Done: true}
 	} else {
-		outChan <- model.StreamResponse{Done: true}
+		outChan <- model.StreamResponse{Event: "done", Done: true}
 	}
 }

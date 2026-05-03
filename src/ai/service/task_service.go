@@ -1,4 +1,3 @@
-// st-novel-go/src/ai/service/task_service.go
 package service
 
 import (

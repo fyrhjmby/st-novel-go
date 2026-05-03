@@ -53,6 +53,32 @@ func GetConversations(userID uint) ([]ConversationDTO, error) {
 	return dtoList, nil
 }
 
+func UpdateConversationTitle(id string, userID uint, title string) (*ConversationDTO, error) {
+	conv, err := dao.FindConversationByID(id, userID)
+	if err != nil {
+		return nil, err
+	}
+	conv.Title = title
+	if err := dao.UpdateConversation(conv); err != nil {
+		return nil, err
+	}
+	return mapConversationToDTO(*conv), nil
+}
+
+func SaveConversationMessages(id string, userID uint, messages []ChatMessageDTO) error {
+	conv, err := dao.FindConversationByID(id, userID)
+	if err != nil {
+		return err
+	}
+	msgBytes, _ := json.Marshal(messages)
+	conv.Messages = msgBytes
+	return dao.UpdateConversation(conv)
+}
+
+func DeleteConversation(id string, userID uint) error {
+	return dao.DeleteConversation(id, userID)
+}
+
 func mapConversationToDTO(conv model.Conversation) *ConversationDTO {
 	var messages []ChatMessageDTO
 	_ = json.Unmarshal(conv.Messages, &messages)

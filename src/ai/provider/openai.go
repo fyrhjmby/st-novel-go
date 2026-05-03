@@ -127,6 +127,7 @@ func (o *OpenAIAdapter) processStream(resp *http.Response, outChan chan<- model.
 
 		if len(streamResp.Choices) > 0 {
 			outChan <- model.StreamResponse{
+				Event:   "chunk",
 				Content: streamResp.Choices[0].Delta.Content,
 				Done:    false,
 			}
@@ -135,8 +136,8 @@ func (o *OpenAIAdapter) processStream(resp *http.Response, outChan chan<- model.
 
 	if err := scanner.Err(); err != nil {
 		// handle scanner error
-		outChan <- model.StreamResponse{Error: "stream reading error: " + err.Error(), Done: true}
+		outChan <- model.StreamResponse{Event: "error", Error: "stream reading error: " + err.Error(), Done: true}
 	} else {
-		outChan <- model.StreamResponse{Done: true}
+		outChan <- model.StreamResponse{Event: "done", Done: true}
 	}
 }

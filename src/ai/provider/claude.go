@@ -146,6 +146,7 @@ func (a *ClaudeAdapter) processStream(resp *http.Response, outChan chan<- model.
 			if json.Unmarshal(deltaBytes, &contentDelta) == nil {
 				if contentDelta.Delta.Type == "text_delta" {
 					outChan <- model.StreamResponse{
+						Event:   "chunk",
 						Content: contentDelta.Delta.Text,
 						Done:    false,
 					}
@@ -157,8 +158,8 @@ func (a *ClaudeAdapter) processStream(resp *http.Response, outChan chan<- model.
 	}
 
 	if err := scanner.Err(); err != nil {
-		outChan <- model.StreamResponse{Error: "stream reading error: " + err.Error(), Done: true}
+		outChan <- model.StreamResponse{Event: "error", Error: "stream reading error: " + err.Error(), Done: true}
 	} else {
-		outChan <- model.StreamResponse{Done: true}
+		outChan <- model.StreamResponse{Event: "done", Done: true}
 	}
 }

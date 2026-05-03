@@ -75,6 +75,20 @@ func RegisterNovelRoutes(router *gin.RouterGroup) {
 			volumeSpecificGroup.PUT("/chapters/order", handler.UpdateChapterOrderHandler)
 		}
 
+		// Individual Node CRUD for settings/custom-plot/custom-analysis/custom-others trees
+		nodeCrudGroup := novelRoutes.Group("/nodes/:type")
+		{
+			nodeCrudGroup.POST("", handler.CreateNodeHandler)
+			nodeCrudGroup.PATCH("/:nodeId", handler.UpdateNodeHandler)
+			nodeCrudGroup.DELETE("/:nodeId", handler.DeleteNodeHandler)
+		}
+
+		// Sync endpoint: get updates since a given timestamp
+		novelSpecificGroup.GET("/updates", handler.GetUpdatesHandler)
+
+		// Export endpoint
+		novelRoutes.POST("/novels/:novelId/export", handler.ExportNovelHandler)
+
 		// Routes for specific Chapters
 		chapterSpecificGroup := novelRoutes.Group("/chapters/:chapterId")
 		{

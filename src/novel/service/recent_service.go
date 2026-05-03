@@ -85,18 +85,28 @@ func LogRecentAccess(payload dto.LogRecentAccessPayload, userID uint) (*dto.Rece
 		return nil, errors.New("novel not found or permission denied")
 	}
 
+	var activity *model.RecentActivity
+
 	latestChapter, err := dao.GetLastUpdatedChapterForNovel(payload.NovelID)
 	if err != nil {
-		return nil, errors.New("cannot log access for a novel without chapters")
-	}
-
-	activity := &model.RecentActivity{
-		UserID:         userID,
-		NovelID:        novel.ID,
-		EditedItemType: "chapter",
-		EditedItemID:   latestChapter.ID.String(),
-		EditedItemName: latestChapter.Title,
-		BaseModel:      model.BaseModel{UpdatedAt: time.Now()},
+		// 小说没有章节时，记录小说的访问而非章节
+		activity = &model.RecentActivity{
+			UserID:         userID,
+			NovelID:        novel.ID,
+			EditedItemType: "novel",
+			EditedItemID:   novel.ID.String(),
+			EditedItemName: novel.Title,
+			BaseModel:      model.BaseModel{UpdatedAt: time.Now()},
+		}
+	} else {
+		activity = &model.RecentActivity{
+			UserID:         userID,
+			NovelID:        novel.ID,
+			EditedItemType: "chapter",
+			EditedItemID:   latestChapter.ID.String(),
+			EditedItemName: latestChapter.Title,
+			BaseModel:      model.BaseModel{UpdatedAt: time.Now()},
+		}
 	}
 
 	if err := dao.LogOrUpdateRecentActivity(activity); err != nil {
@@ -108,8 +118,8 @@ func LogRecentAccess(payload dto.LogRecentAccessPayload, userID uint) (*dto.Rece
 		NovelID:        novel.ID.String(),
 		NovelTitle:     novel.Title,
 		NovelCover:     novel.Cover,
-		EditedItemType: "chapter",
-		EditedItemName: latestChapter.Title,
+		EditedItemType: activity.EditedItemType,
+		EditedItemName: activity.EditedItemName,
 		EditedAt:       activity.UpdatedAt.Format(time.RFC3339),
 	}, nil
 }

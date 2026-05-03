@@ -2,6 +2,7 @@
 package dao
 
 import (
+	"gorm.io/gorm/clause"
 	"st-novel-go/src/database"
 	"st-novel-go/src/novel/model"
 )
@@ -19,17 +20,10 @@ func GetRecentActivitiesByUserID(userID uint) ([]model.RecentActivity, error) {
 }
 
 func LogOrUpdateRecentActivity(activity *model.RecentActivity) error {
-	var existing model.RecentActivity
-	// Find if an identical activity for the same item already exists
-	err := database.DB.
-		Where("user_id = ? AND novel_id = ? AND edited_item_id = ?", activity.UserID, activity.NovelID, activity.EditedItemID).
-		First(&existing).Error
-
-	if err == nil {
-		// If it exists, update its timestamp
-		return database.DB.Model(&existing).Update("updated_at", activity.UpdatedAt).Error
-	}
-
-	// If not found, create a new one
-	return database.DB.Create(activity).Error
+	// 使用 OnConflict 原子化 upsert，避免 TOCTOU 竞态条件。
+	// 当 (user_id, novel_id, edited_item_id) 组合已存在时，只更新 updated_at。
+	return database.DB.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "user_id"}, {Name: "novel_id"}, {Name: "edited_item_id"}},
+		DoUpdates: clause.AssignmentColumns([]string{"updated_at"}),
+	}).Create(activity).Error
 }

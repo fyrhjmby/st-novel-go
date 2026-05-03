@@ -43,6 +43,11 @@ func RestoreVersion(documentID, versionID string, userID uint) error {
 		return errors.New("history version not found or permission denied")
 	}
 
+	// 校验 version 确实属于指定的 documentID，防止跨文档恢复
+	if versionToRestore.DocumentID != documentID {
+		return errors.New("version does not belong to the specified document")
+	}
+
 	restoreLabel := fmt.Sprintf("从 %s 恢复", formatTimeAgo(versionToRestore.CreatedAt))
 
 	switch versionToRestore.DocumentType {

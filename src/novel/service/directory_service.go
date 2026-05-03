@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"log"
 	"st-novel-go/src/novel/dao"
 	"st-novel-go/src/novel/dto"
 	"st-novel-go/src/novel/model"
@@ -84,7 +85,9 @@ func UpdateVolume(volumeID string, userID uint, payload dto.UpdateVolumePayload)
 		return nil, errors.New("permission denied")
 	}
 
-	_ = CreateVersion(volume.ID.String(), "volume", "手动保存", volume.Content, userID)
+	if err := CreateVersion(volume.ID.String(), "volume", "手动保存", volume.Content, userID); err != nil {
+		log.Printf("[directory_service] Failed to create history version for volume %s: %v", volumeID, err)
+	}
 
 	if payload.Title != nil {
 		volume.Title = *payload.Title
@@ -97,7 +100,9 @@ func UpdateVolume(volumeID string, userID uint, payload dto.UpdateVolumePayload)
 		return nil, err
 	}
 
-	_ = LogRecentEdit(userID, volume.NovelID, "outline", volume.ID.String(), volume.Title)
+	if err := LogRecentEdit(userID, volume.NovelID, "outline", volume.ID.String(), volume.Title); err != nil {
+		log.Printf("[directory_service] Failed to log recent edit for volume %s: %v", volumeID, err)
+	}
 
 	return volume, nil
 }
@@ -111,7 +116,9 @@ func UpdateChapter(chapterID string, userID uint, payload dto.UpdateChapterPaylo
 		return nil, errors.New("permission denied")
 	}
 
-	_ = CreateVersion(chapter.ID.String(), "chapter", "手动保存", chapter.Content, userID)
+	if err := CreateVersion(chapter.ID.String(), "chapter", "手动保存", chapter.Content, userID); err != nil {
+		log.Printf("[directory_service] Failed to create history version for chapter %s: %v", chapterID, err)
+	}
 
 	if payload.Title != nil {
 		chapter.Title = *payload.Title
@@ -119,6 +126,8 @@ func UpdateChapter(chapterID string, userID uint, payload dto.UpdateChapterPaylo
 	if payload.Content != nil {
 		chapter.Content = *payload.Content
 		chapter.Title = SyncTitleFromContent(chapter.Content, chapter.Title)
+		// 重新计算字数：统计 HTML 内容中去掉标签后的纯文本字数
+		chapter.WordCount = countWordsFromHTML(chapter.Content)
 	}
 	if payload.Status != nil {
 		chapter.Status = *payload.Status
@@ -127,7 +136,9 @@ func UpdateChapter(chapterID string, userID uint, payload dto.UpdateChapterPaylo
 		return nil, err
 	}
 
-	_ = LogRecentEdit(userID, chapter.NovelID, "chapter", chapter.ID.String(), chapter.Title)
+	if err := LogRecentEdit(userID, chapter.NovelID, "chapter", chapter.ID.String(), chapter.Title); err != nil {
+		log.Printf("[directory_service] Failed to log recent edit for chapter %s: %v", chapterID, err)
+	}
 
 	return chapter, nil
 }

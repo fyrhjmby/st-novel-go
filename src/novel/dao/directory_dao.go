@@ -43,6 +43,12 @@ func GetChaptersByVolumeID(volumeID string) ([]model.Chapter, error) {
 	return chapters, err
 }
 
+func GetChaptersByNovelID(novelID string) ([]model.Chapter, error) {
+	var chapters []model.Chapter
+	err := database.DB.Where("novel_id = ?", novelID).Order("`order` ASC").Find(&chapters).Error
+	return chapters, err
+}
+
 func GetLastUpdatedChapterForNovel(novelID string) (*model.Chapter, error) {
 	var chapter model.Chapter
 	err := database.DB.Where("novel_id = ?", novelID).Order("updated_at DESC").First(&chapter).Error
